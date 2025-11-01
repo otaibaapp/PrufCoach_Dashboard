@@ -50,6 +50,7 @@ export default function QuestionForm({ question, onChange, onDelete }) {
             : "False"
           : "",
       isCorrect: false,
+      isStriked: false,
     };
 
     updateQuestion("answers", [...(question.answers || []), newAnswer]);
@@ -164,7 +165,7 @@ export default function QuestionForm({ question, onChange, onDelete }) {
             value={question.score || 0}
             onChange={(e) => updateQuestion("score", Number(e.target.value))}
             placeholder="Points for this question"
-            className="bg-white"
+            className={`bg-white ${answer.isStriked ? "line-through text-gray-400" : ""}`}
           />
         </div>
 
@@ -199,7 +200,7 @@ export default function QuestionForm({ question, onChange, onDelete }) {
                     updateAnswer(answerIndex, "text", e.target.value)
                   }
                   placeholder={getAnswerPlaceholder(question.type)}
-                  className="bg-white"
+                  className={`bg-white ${answer.isStriked ? "line-through text-gray-400" : ""}`}
                   disabled={question.type === "true_false"}
                 />
                 <div className="flex items-center gap-2">
@@ -237,6 +238,32 @@ export default function QuestionForm({ question, onChange, onDelete }) {
                     </span>
                   </label>
                 </div>
+
+{question.type === "multi_choice" && (
+  <div className="flex items-center gap-2">
+    <input
+      id={`striked-${answer.id || answerIndex}`}
+      type="checkbox"
+      checked={answer.isStriked || false}
+      onChange={(e) => {
+        const updatedAnswers = question.answers.map((ans, idx) => ({
+          ...ans,
+          isStriked: idx === answerIndex ? e.target.checked : false,
+        }));
+        updateQuestion("answers", updatedAnswers);
+      }}
+      className="w-4 h-4"
+    />
+    <label htmlFor={`striked-${answer.id || answerIndex}`}>
+      <span className="text-sm text-muted-foreground">
+        Striked
+      </span>
+    </label>
+  </div>
+)}
+
+
+
               </div>
               <Button
                 variant="outline"

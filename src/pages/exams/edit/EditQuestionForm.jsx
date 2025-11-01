@@ -38,15 +38,17 @@ export default function EditQuestionForm({ question, onChange, onDelete }) {
     }
 
     const newAnswer = {
-      questionText:
-        question.type === "true_false"
-          ? question.answers?.length === 0
-            ? "True"
-            : "False"
-          : "",
-      isCorrect: false,
-      isNew: true, // Flag to indicate this is a newly added answer
-    };
+  questionText:
+    question.type === "true_false"
+      ? question.answers?.length === 0
+        ? "True"
+        : "False"
+      : "",
+  isCorrect: false,
+  isStriked: false,
+  isNew: true,
+};
+
 
     updateQuestion("answers", [...(question.answers || []), newAnswer]);
   };
@@ -198,7 +200,7 @@ export default function EditQuestionForm({ question, onChange, onDelete }) {
                     updateAnswer(answerIndex, "questionText", e.target.value)
                   }
                   placeholder={getAnswerPlaceholder(question.type)}
-                  className="bg-white"
+                  className={`bg-white ${answer.isStriked ? "line-through text-gray-400" : ""}`}
                   disabled={question.type === "true_false"}
                 />
                 <div className="flex items-center gap-2">
@@ -233,6 +235,31 @@ export default function EditQuestionForm({ question, onChange, onDelete }) {
                     Correct Answer
                   </span>
                 </div>
+                
+{question.type === "multi_choice" && (
+  <div className="flex items-center gap-2">
+    <input
+      id={`striked-${answer.id || answerIndex}`}
+      type="checkbox"
+      checked={answer.isStriked || false}
+      onChange={(e) => {
+        const updatedAnswers = question.answers.map((ans, idx) => ({
+          ...ans,
+          isStriked: idx === answerIndex ? e.target.checked : false,
+        }));
+        updateQuestion("answers", updatedAnswers);
+      }}
+      className="w-4 h-4"
+    />
+    <label htmlFor={`striked-${answer.id || answerIndex}`}>
+      <span className="text-sm text-muted-foreground">
+        Striked
+      </span>
+    </label>
+  </div>
+)}
+
+
               </div>
               {(question.isNew || answer.isNew) && (
                 <Button
