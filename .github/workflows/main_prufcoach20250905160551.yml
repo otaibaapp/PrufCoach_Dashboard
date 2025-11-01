@@ -7,11 +7,11 @@ on:
 jobs:
   build_and_deploy:
     runs-on: ubuntu-latest
-    steps:
-      - name: Checkout repository
-        uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node
         uses: actions/setup-node@v4
         with:
           node-version: '18'
@@ -32,19 +32,17 @@ jobs:
     runs-on: ubuntu-latest
     needs: build_and_deploy
     steps:
-      - name: Download build artifact
+      - name: Download artifact
         uses: actions/download-artifact@v4
         with:
           name: vite-build
           path: dist
 
-      # 🔑 تسجيل الدخول إلى Azure باستخدام بيانات السر المخزنة في GitHub
-      - name: Login to Azure
-        uses: azure/login@v1
+      - name: Azure Login
+        uses: azure/login@v2
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
 
-      # 🚀 نشر التطبيق إلى Azure Web App
       - name: Deploy to Azure Web App
         uses: azure/webapps-deploy@v3
         with:
